@@ -1,30 +1,30 @@
 function(input, output, session) {
-
+  
   # pkgStream is a reactive expression that represents a stream of
   # new package download data; up to once a second it may return a
   # data frame of new downloads since the last update.
   pkgStream <- packageStream(session)
-
+  
   # Max age of data (5 minutes)
   maxAgeSecs <- 60 * 5
-
+  
   # pkgData is a reactive expression that accumulates previous
   # values of pkgStream, discarding any that are older than
   # maxAgeSecs.
   pkgData <- packageData(pkgStream, maxAgeSecs)
-
+  
   # dlCount is a reactive expression that keeps track of the total
   # number of rows that have ever appeared through pkgStream.
   dlCount <- downloadCount(pkgStream)
-
+  
   # usrCount is a reactive expression that keeps an approximate
   # count of all of the unique users that have been seen since the
   # app started.
   usrCount <- userCount(pkgStream)
-
+  
   # Record the time that the session started.
   startTime <- as.numeric(Sys.time())
-
+  
   output$rate <- renderValueBox({
     # The downloadRate is the number of rows in pkgData since
     # either startTime or maxAgeSecs ago, whichever is later.
@@ -88,11 +88,42 @@ function(input, output, session) {
     },
     contentType = "text/csv"
   )
-
-  output$rawtable <- renderPrint({
-    orig <- options(width = 1000)
-    print(tail(pkgData(), input$maxrows), row.names = FALSE)
-    options(orig)
+  
+  output$rawtable <- DT::renderDataTable({
+                                          myFilteredDf <- filter1()
+                                          DT::datatable(myFilteredDf)
+                                        })
+  filter1 <-  reactive({
+    stb_4 %>% filter(region %in% input$RegionInput) %>%
+              filter(place_of_residence %in% input$CountryInput)
+  })
+  
+  observe({
+    dt <- unique(stb_4$place_of_residence[stb_4$region %in% input$RegionInput])
+    updatePickerInput(session, "CountryInput", choices = dt,selected = dt)
+  })
+  
+  output$cluster_avg = renderPlot({
+    myFilteredDf <- filter1()
+    clusterList = cluster(myFilteredDf)
+    clustertype <- input$ClusterType
+    if (clustertype=='Ward') {
+      plot(clusterList$ward)
+    }
+    else {
+      plot(clusterList$avg)
+    }
+  })
+  
+  filter2 <-  reactive({
+    stb_2 %>% filter(region %in% input$RegionInput) %>%
+      filter(place_of_residence %in% input$CountryInput)
+  })
+  
+  output$prediction_graph = renderPlot({
+    myFilteredDf <- filter2()
+    fore_arima = timeseriesPredict(myFilteredDf)
+    plot(fore_arima)
   })
 }
 
