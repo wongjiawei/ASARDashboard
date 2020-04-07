@@ -19,6 +19,16 @@ transformData <- function(stb_4,stb_2) {
   ## Convert "month" column to date format
   stb_2$month <- as.Date(paste("01-", stb_2$month, sep = ""), format = "%d-%b-%y")
   stb_4$month <- as.Date(paste("01-", stb_4$month, sep = ""), format = "%d-%b-%y")
+  stb_4$yearmonth <- format(as.Date(stb_4$month), "%Y-%m")
+  stb_2$yearmonth <- format(as.Date(stb_2$month), "%Y-%m")
+  
+  ## Calculate Total
+  stb_4$Value = stb_4$female + stb_4$male
+  old_names <- c("USA", "Vietnam", "Hong Kong SAR", "Taiwan","South Korea", "UK","South Africa (Rep of)")
+  new_names <- c("United States of America", "Viet Nam", "Hong Kong, SAR China", "Taiwan, Republic of China", "Korea (South)", "	United Kingdom", "South Africa")
+  for (i in 1:length(old_names)){
+    stb_4$place_of_residence[stb_4$place_of_residence == old_names[i]] <- new_names[i]
+  }
   
   returnList = list("stb_2" = stb_2, "stb_4" = stb_4)
   return(returnList)
@@ -85,54 +95,70 @@ timeseriesPredict <- function(stb_2) {
   #Arrival by Country
   stb_2_Country <- stb_2_2015_2019 %>% group_by(month, place_of_residence) %>% summarise(total_arrival_country = sum(arrivals))
   
-  ##(Training data) Subset to keep only Jan-2015 to Dec-2018 records
-  stb_2_Overall_2015_2018 <- subset(stb_2_Overall, as.numeric(format(stb_2_Overall$month,'%Y'))>=2015 & as.numeric(format(stb_2_Overall$month,'%Y'))<=2018)
-  
-  ##(Testing data) Subset to keep only Jan-2019 to Dec-2019 records
-  stb_2_Overall_2019 <- subset(stb_2_Overall, as.numeric(format(stb_2_Overall$month,'%Y'))==2019)
+  ## Subset to keep only Jan-2016 to Dec-2019 records
+  stb_2_Overall_2016_2019 <- subset(stb_2_Overall, as.numeric(format(stb_2_Overall$month,'%Y'))>=2016 & as.numeric(format(stb_2_Overall$month,'%Y'))<=2019)
   
   #Convert into timeseries data and plot the timeseries
-  dat_ts <- ts(stb_2_Overall_2015_2018[, 2], start = c(2015, 1), end = c(2018, 12), frequency = 12)
-  plot(dat_ts, ylab="Total Arrivals")
+  dat_ts_2016_2019 <- ts(stb_2_Overall_2016_2019[, 2], start = c(2016, 1), end = c(2019, 12), frequency = 12)
   
-  
-  #######METHOD 1: Naive Forecasting method########
-  naive_mod <- naive(dat_ts, h = 12)
-  summary(naive_mod) 
-  
-  #Predict and test using 2019 data
-  stb_2_Overall_2019$naive = 1603217
-  mape(stb_2_Overall_2019$total_arrival, stb_2_Overall_2019$naive) 
-  
-  #######METHOD 2: Exponential Smoothing method########
-  se_model <- ses(dat_ts, h = 12)
-  summary(se_model)
-  
-  #Predict and test using 2019 data
-  df_fc = as.data.frame(se_model)
-  stb_2_Overall_2019$simplexp = df_fc$`Point Forecast`
-  mape(stb_2_Overall_2019$total_arrival, stb_2_Overall_2019$simplexp)  
-  
-  #######METHOD 3: Holt's Trend method########
-  holt_model <- holt(dat_ts, h = 12)
-  summary(holt_model) 
-  
-  #Predict and test using 2019 data
-  df_holt = as.data.frame(holt_model)
-  stb_2_Overall_2019$holt = df_holt$`Point Forecast`
-  mape(stb_2_Overall_2019$total_arrival, stb_2_Overall_2019$holt) 
-  
-  #######METHOD 4: Auto ARIMA method########
-  arima_model <- auto.arima(dat_ts)
-  summary(arima_model)
-  
-  #Predict and test using 2019 data
-  fore_arima = forecast::forecast(arima_model, h=12)
-  df_arima = as.data.frame(fore_arima)
-  stb_2_Overall_2019$arima = df_arima$`Point Forecast`
-  mape(stb_2_Overall_2019$total_arrival, stb_2_Overall_2019$arima)
-  
-  #Plot the forecast chart out
-  return(fore_arima)
+  #######Forecast using Auto ARIMA method########
+  arima_model_2016_2019 <- auto.arima(dat_ts_2016_2019)
+  fore_arima_2016_2019 = forecast::forecast(arima_model_2016_2019, h=12)
+  df_arima_2016_2019 = as.data.frame(fore_arima_2016_2019)
+  df_arima_2016_2019
+  return(fore_arima_2016_2019)
 }
+
+worldMaps <- function(stb_4 ) {
+  url <- "https://www.nationsonline.org/oneworld/country_code_list.htm"
+  iso_codes <- url %>%
+    read_html() %>%
+    html_nodes(xpath = '//*[@id="CountryCode"]') %>%
+    html_table()
+  iso_codes <- iso_codes[[1]][, -1]
+  iso_codes <- iso_codes[!apply(iso_codes, 1, function(x){all(x == x[1])}), ]
+  names(iso_codes) <- c("Country", "ISO2", "ISO3", "UN")
+  
+  world_data <- ggplot2::map_data('world')
+  world_data <- fortify(world_data)
+  
+  stb_4$Value = as.numeric(stb_4$Value)
+  stb_4['ISO3'] <- iso_codes$ISO3[match(stb_4$place_of_residence, iso_codes$Country)]
+  world_data["ISO3"] <- iso_codes$ISO3[match(world_data$region, iso_codes$Country)]
+  
+  old_names1 <- c("UK", "South Korea", "Taiwan", "USA", "Vietnam")
+  new_names1 <- c("United Kingdom", "Korea (South)", "Taiwan, Republic of China","United States of America", "Viet Nam")
+  for (i in 1:length(old_names1)){
+    world_data$region[world_data$region == old_names1[i]] <- new_names1[i]
+  }
+  
+  ##it's time to define the function that we'll use for building our world maps.
+  my_theme <- function () { 
+    theme_bw() + theme(axis.title = element_blank(),
+                       axis.text = element_blank(),
+                       axis.ticks = element_blank(),
+                       panel.grid.major = element_blank(), 
+                       panel.grid.minor = element_blank(),
+                       panel.background = element_blank(), 
+                       legend.position = "right",
+                       panel.border = element_blank(), 
+                       strip.background = element_rect(fill = 'white', colour = 'white'))
+  }
+  plotdf <- stb_4
+  world_data['Value'] <- plotdf$Value[match(world_data$ISO3, plotdf$ISO3)]
+  
+  # Specify the plot for the world map
+  library(RColorBrewer)
+  library(ggiraph)
+  g <- ggplot() + 
+    geom_polygon_interactive(data = subset(world_data, lat >= -60 & lat <= 90), color = 'grey70', size = 0.1,
+                             aes(x = long, y = lat, fill = Value, group = group, 
+                                 tooltip = sprintf("%s<br/>%s", region, Value))) + 
+    scale_fill_gradientn(colours = brewer.pal(5, "RdBu"), na.value = 'white') + 
+    labs(fill = NULL, title = NULL, x = NULL, y = NULL) + 
+    my_theme()
+  
+  return(g)
+}
+
 

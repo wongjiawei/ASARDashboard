@@ -19,9 +19,11 @@ library(stlplus)
 #library(fpp2)
 #library(TTR)
 
+
+
 ## Read in datasets
-stb_2 <- read_excel("./ShinyR/data/2.0.xlsx")
-stb_4 <- read_excel("./ShinyR/data/4.0.xlsx")
+stb_2 <- read_excel("2.0.xlsx")
+stb_4 <- read_excel("4.0.xlsx")
 
 ## Rename columns
 stb_2 <- stb_2 %>% rename(
@@ -245,7 +247,7 @@ df_arima_2016_2019 = as.data.frame(fore_arima_2016_2019)
 df_arima_2016_2019
 
 #Plot trend
-plot(fore_arima_2016_2019)
+plot(fore_arima_2016_2019, ylab="Total arrival")
 
 ###################################################################################################
 ######## Region ###################################################################################
@@ -266,7 +268,7 @@ df_arima_AMERICAS_2016_2019 = as.data.frame(fore_arima_AMERICAS_2016_2019)
 df_arima_AMERICAS_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_AMERICAS_2016_2019)
+plot(fore_arima_AMERICAS_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################2) SOUTHEAST ASIA############
@@ -283,7 +285,7 @@ df_arima_SOUTHEAST_ASIA_2016_2019 = as.data.frame(fore_arima_SOUTHEAST_ASIA_2016
 df_arima_SOUTHEAST_ASIA_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_SOUTHEAST_ASIA_2016_2019)
+plot(fore_arima_SOUTHEAST_ASIA_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################3) GREATER CHINA#############
@@ -300,7 +302,7 @@ df_arima_GREATER_CHINA_2016_2019 = as.data.frame(fore_arima_GREATER_CHINA_2016_2
 df_arima_GREATER_CHINA_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_GREATER_CHINA_2016_2019)
+plot(fore_arima_GREATER_CHINA_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################4) NORTH ASIA################
@@ -317,7 +319,7 @@ df_arima_NORTH_ASIA_2016_2019 = as.data.frame(fore_arima_NORTH_ASIA_2016_2019)
 df_arima_NORTH_ASIA_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_NORTH_ASIA_2016_2019)
+plot(fore_arima_NORTH_ASIA_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################5) SOUTH ASIA################
@@ -334,7 +336,7 @@ df_arima_SOUTH_ASIA_2016_2019 = as.data.frame(fore_arima_SOUTH_ASIA_2016_2019)
 df_arima_SOUTH_ASIA_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_SOUTH_ASIA_2016_2019)
+plot(fore_arima_SOUTH_ASIA_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################6) WEST ASIA#################
@@ -351,7 +353,7 @@ df_arima_WEST_ASIA_2016_2019 = as.data.frame(fore_arima_WEST_ASIA_2016_2019)
 df_arima_WEST_ASIA_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_WEST_ASIA_2016_2019)
+plot(fore_arima_WEST_ASIA_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################7) EUROPE####################
@@ -368,7 +370,7 @@ df_arima_EUROPE_2016_2019 = as.data.frame(fore_arima_EUROPE_2016_2019)
 df_arima_EUROPE_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_EUROPE_2016_2019)
+plot(fore_arima_EUROPE_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################8) OCEANIA###################
@@ -385,7 +387,7 @@ df_arima_OCEANIA_2016_2019 = as.data.frame(fore_arima_OCEANIA_2016_2019)
 df_arima_OCEANIA_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_OCEANIA_2016_2019)
+plot(fore_arima_OCEANIA_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################9) AFRICA####################
@@ -402,7 +404,7 @@ df_arima_AFRICA_2016_2019 = as.data.frame(fore_arima_AFRICA_2016_2019)
 df_arima_AFRICA_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_AFRICA_2016_2019)
+plot(fore_arima_AFRICA_2016_2019, ylab="Total arrival")
 
 ###################################################################################################
 ######## Country ##################################################################################
@@ -423,7 +425,7 @@ df_arima_Australia_2016_2019 = as.data.frame(fore_arima_Australia_2016_2019)
 df_arima_Australia_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Australia_2016_2019)
+plot(fore_arima_Australia_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################2) Bangladesh################
@@ -440,7 +442,7 @@ df_arima_Bangladesh_2016_2019 = as.data.frame(fore_arima_Bangladesh_2016_2019)
 df_arima_Bangladesh_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Bangladesh_2016_2019)
+plot(fore_arima_Bangladesh_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################3) Belgium and Luxembourg####
@@ -457,7 +459,7 @@ df_arima_Belgium_and_Luxembourg_2016_2019 = as.data.frame(fore_arima_Belgium_and
 df_arima_Belgium_and_Luxembourg_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Belgium_and_Luxembourg_2016_2019)
+plot(fore_arima_Belgium_and_Luxembourg_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################4) Brunei Darussalam#########
@@ -474,7 +476,7 @@ df_arima_Brunei_2016_2019 = as.data.frame(fore_arima_Brunei_2016_2019)
 df_arima_Brunei_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Brunei_2016_2019)
+plot(fore_arima_Brunei_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################5) Canada####################
@@ -491,7 +493,7 @@ df_arima_Canada_2016_2019 = as.data.frame(fore_arima_Canada_2016_2019)
 df_arima_Canada_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Canada_2016_2019)
+plot(fore_arima_Canada_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################6) China#####################
@@ -508,7 +510,7 @@ df_arima_China_2016_2019 = as.data.frame(fore_arima_China_2016_2019)
 df_arima_China_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_China_2016_2019)
+plot(fore_arima_China_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################7) Denmark###################
@@ -525,7 +527,7 @@ df_arima_Denmark_2016_2019 = as.data.frame(fore_arima_Denmark_2016_2019)
 df_arima_Denmark_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Denmark_2016_2019)
+plot(fore_arima_Denmark_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################8) Egypt#####################
@@ -542,7 +544,7 @@ df_arima_Egypt_2016_2019 = as.data.frame(fore_arima_Egypt_2016_2019)
 df_arima_Egypt_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Egypt_2016_2019)
+plot(fore_arima_Egypt_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################9) Finland##################
@@ -559,7 +561,7 @@ df_arima_Finland_2016_2019 = as.data.frame(fore_arima_Finland_2016_2019)
 df_arima_Finland_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Finland_2016_2019)
+plot(fore_arima_Finland_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################10) France##################
@@ -576,7 +578,7 @@ df_arima_France_2016_2019 = as.data.frame(fore_arima_France_2016_2019)
 df_arima_France_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_France_2016_2019)
+plot(fore_arima_France_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################11) Germany##################
@@ -593,7 +595,7 @@ df_arima_Germany_2016_2019 = as.data.frame(fore_arima_Germany_2016_2019)
 df_arima_Germany_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Germany_2016_2019)
+plot(fore_arima_Germany_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################12) Hong Kong SAR############
@@ -610,7 +612,7 @@ df_arima_Hong_Kong_2016_2019 = as.data.frame(fore_arima_Hong_Kong_2016_2019)
 df_arima_Hong_Kong_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Hong_Kong_2016_2019)
+plot(fore_arima_Hong_Kong_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################13) India####################
@@ -627,7 +629,7 @@ df_arima_India_2016_2019 = as.data.frame(fore_arima_India_2016_2019)
 df_arima_India_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_India_2016_2019)
+plot(fore_arima_India_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################14) Indonesia################
@@ -644,7 +646,7 @@ df_arima_Indonesia_2016_2019 = as.data.frame(fore_arima_Indonesia_2016_2019)
 df_arima_Indonesia_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Indonesia_2016_2019)
+plot(fore_arima_Indonesia_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################15) Iran#####################
@@ -661,7 +663,7 @@ df_arima_Iran_2016_2019 = as.data.frame(fore_arima_Iran_2016_2019)
 df_arima_Iran_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Iran_2016_2019)
+plot(fore_arima_Iran_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################16) Israel###################
@@ -678,7 +680,7 @@ df_arima_Israel_2016_2019 = as.data.frame(fore_arima_Israel_2016_2019)
 df_arima_Israel_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Israel_2016_2019)
+plot(fore_arima_Israel_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################17) Italy####################
@@ -695,7 +697,7 @@ df_arima_Italy_2016_2019 = as.data.frame(fore_arima_Italy_2016_2019)
 df_arima_Italy_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Italy_2016_2019)
+plot(fore_arima_Italy_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################18) Japan####################
@@ -712,7 +714,7 @@ df_arima_Japan_2016_2019 = as.data.frame(fore_arima_Japan_2016_2019)
 df_arima_Japan_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Japan_2016_2019)
+plot(fore_arima_Japan_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################19) Kuwait###################
@@ -729,7 +731,7 @@ df_arima_Kuwait_2016_2019 = as.data.frame(fore_arima_Kuwait_2016_2019)
 df_arima_Kuwait_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Kuwait_2016_2019)
+plot(fore_arima_Kuwait_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################20) Malaysia#################
@@ -746,7 +748,7 @@ df_arima_Malaysia_2016_2019 = as.data.frame(fore_arima_Malaysia_2016_2019)
 df_arima_Malaysia_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Malaysia_2016_2019)
+plot(fore_arima_Malaysia_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################21) Mauritius################
@@ -763,7 +765,7 @@ df_arima_Mauritius_2016_2019 = as.data.frame(fore_arima_Mauritius_2016_2019)
 df_arima_Mauritius_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Mauritius_2016_2019)
+plot(fore_arima_Mauritius_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################22) Myanmar#################
@@ -780,7 +782,7 @@ df_arima_Myanmar_2016_2019 = as.data.frame(fore_arima_Myanmar_2016_2019)
 df_arima_Myanmar_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Myanmar_2016_2019)
+plot(fore_arima_Myanmar_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################23) Netherlands##############
@@ -797,7 +799,7 @@ df_arima_Netherlands_2016_2019 = as.data.frame(fore_arima_Netherlands_2016_2019)
 df_arima_Netherlands_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Netherlands_2016_2019)
+plot(fore_arima_Netherlands_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################24) New Zealand##############
@@ -814,7 +816,7 @@ df_arima_New_Zealand_2016_2019 = as.data.frame(fore_arima_New_Zealand_2016_2019)
 df_arima_New_Zealand_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_New_Zealand_2016_2019)
+plot(fore_arima_New_Zealand_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################25) Norway###################
@@ -831,7 +833,7 @@ df_arima_Norway_2016_2019 = as.data.frame(fore_arima_Norway_2016_2019)
 df_arima_Norway_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Norway_2016_2019)
+plot(fore_arima_Norway_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################26) Pakistan#################
@@ -848,7 +850,7 @@ df_arima_Pakistan_2016_2019 = as.data.frame(fore_arima_Pakistan_2016_2019)
 df_arima_Pakistan_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Pakistan_2016_2019)
+plot(fore_arima_Pakistan_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################27) Philippines##############
@@ -865,7 +867,7 @@ df_arima_Philippines_2016_2019 = as.data.frame(fore_arima_Philippines_2016_2019)
 df_arima_Philippines_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Philippines_2016_2019)
+plot(fore_arima_Philippines_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################28) Rep of Ireland###########
@@ -882,7 +884,7 @@ df_arima_Ireland_2016_2019 = as.data.frame(fore_arima_Ireland_2016_2019)
 df_arima_Ireland_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Ireland_2016_2019)
+plot(fore_arima_Ireland_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################29) Russian Federation#######
@@ -899,7 +901,7 @@ df_arima_Russian_2016_2019 = as.data.frame(fore_arima_Russian_2016_2019)
 df_arima_Russian_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Russian_2016_2019)
+plot(fore_arima_Russian_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################30) Saudi Arabia#############
@@ -916,7 +918,7 @@ df_arima_Saudi_Arabia_2016_2019 = as.data.frame(fore_arima_Saudi_Arabia_2016_201
 df_arima_Saudi_Arabia_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Saudi_Arabia_2016_2019)
+plot(fore_arima_Saudi_Arabia_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################31) South Africa (Rep of)####
@@ -933,7 +935,7 @@ df_arima_South_Africa_2016_2019 = as.data.frame(fore_arima_South_Africa_2016_201
 df_arima_South_Africa_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_South_Africa_2016_2019)
+plot(fore_arima_South_Africa_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################32) South Korea##############
@@ -950,7 +952,7 @@ df_arima_South_Korea_2016_2019 = as.data.frame(fore_arima_South_Korea_2016_2019)
 df_arima_South_Korea_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_South_Korea_2016_2019)
+plot(fore_arima_South_Korea_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################33) Spain###################
@@ -967,7 +969,7 @@ df_arima_Spain_2016_2019 = as.data.frame(fore_arima_Spain_2016_2019)
 df_arima_Spain_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Spain_2016_2019)
+plot(fore_arima_Spain_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################34) Sri Lanka################
@@ -984,7 +986,7 @@ df_arima_Sri_Lanka_2016_2019 = as.data.frame(fore_arima_Sri_Lanka_2016_2019)
 df_arima_Sri_Lanka_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Sri_Lanka_2016_2019)
+plot(fore_arima_Sri_Lanka_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################35) Sweden###################
@@ -1001,7 +1003,7 @@ df_arima_Sweden_2016_2019 = as.data.frame(fore_arima_Sweden_2016_2019)
 df_arima_Sweden_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Sweden_2016_2019)
+plot(fore_arima_Sweden_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################36) Switzerland##############
@@ -1018,7 +1020,7 @@ df_arima_Switzerland_2016_2019 = as.data.frame(fore_arima_Switzerland_2016_2019)
 df_arima_Switzerland_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Switzerland_2016_2019)
+plot(fore_arima_Switzerland_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################37) Taiwan###################
@@ -1035,7 +1037,7 @@ df_arima_Taiwan_2016_2019 = as.data.frame(fore_arima_Taiwan_2016_2019)
 df_arima_Taiwan_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Taiwan_2016_2019)
+plot(fore_arima_Taiwan_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################38) Thailand#################
@@ -1052,7 +1054,7 @@ df_arima_Thailand_2016_2019 = as.data.frame(fore_arima_Thailand_2016_2019)
 df_arima_Thailand_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_Thailand_2016_2019)
+plot(fore_arima_Thailand_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################39) UK#######################
@@ -1069,7 +1071,7 @@ df_arima_UK_2016_2019 = as.data.frame(fore_arima_UK_2016_2019)
 df_arima_UK_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_UK_2016_2019)
+plot(fore_arima_UK_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################40) United Arab Emirates#####
@@ -1086,7 +1088,7 @@ df_arima_UNITED_ARAB_EMIRATES_2016_2019 = as.data.frame(fore_arima_UNITED_ARAB_E
 df_arima_UNITED_ARAB_EMIRATES_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_UNITED_ARAB_EMIRATES_2016_2019)
+plot(fore_arima_UNITED_ARAB_EMIRATES_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################41) USA######################
@@ -1103,7 +1105,7 @@ df_arima_USA_2016_2019 = as.data.frame(fore_arima_USA_2016_2019)
 df_arima_USA_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_USA_2016_2019)
+plot(fore_arima_USA_2016_2019, ylab="Total arrival")
 
 ###############################################
 ##################42) Vietnam##################
@@ -1120,7 +1122,7 @@ df_arima_VIETNAM_2016_2019 = as.data.frame(fore_arima_VIETNAM_2016_2019)
 df_arima_VIETNAM_2016_2019
 
 #Plot the forecast chart out
-plot(fore_arima_VIETNAM_2016_2019)
+plot(fore_arima_VIETNAM_2016_2019, ylab="Total arrival")
 
 #################################################################################################################################################
 

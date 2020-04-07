@@ -99,7 +99,7 @@ function(input, output, session) {
   })
   
   observe({
-    dt <- unique(stb_4$place_of_residence[stb_4$region %in% input$RegionInput])
+    dt <- unique(stb_2$place_of_residence[stb_2$region %in% input$RegionInput])
     updatePickerInput(session, "CountryInput", choices = dt,selected = dt)
   })
   
@@ -120,10 +120,58 @@ function(input, output, session) {
       filter(place_of_residence %in% input$CountryInput)
   })
   
+  filter3 <-  reactive({
+    stb_4 %>% filter(yearmonth %in% input$YearMonthInput)
+  })
+  
+  filter4 <-  reactive({
+    stb_4 %>% filter(region %in% input$RegionInput) %>%
+      filter(place_of_residence %in% input$CountryInput) %>% 
+      filter(yearmonth %in% input$YearMonthInput)
+  })
+  
   output$prediction_graph = renderPlot({
     myFilteredDf <- filter2()
     fore_arima = timeseriesPredict(myFilteredDf)
     plot(fore_arima)
+  })
+  
+  output$piechart = renderPlot({
+    myFilteredDf <- filter1()
+    myFilteredDf2 = melt(myFilteredDf,id=c('month','region','place_of_residence'))
+    ggplot(data = myFilteredDf2, aes(x=variable, y=value, fill=variable)) +
+      geom_bar(stat="identity", width=1, color="white") +
+      coord_polar("y", start=0)
+  })
+  
+  output$map <- renderGirafe({
+    myFilteredDf <- filter3()
+    ggiraph(print(worldMaps(myFilteredDf)))
+  })
+  
+  output$arrivalsbygender <- renderPlot({
+    myFilteredDf = filter4()
+    stb_4_2015_2019_gender = myFilteredDf[,1:5]
+    stb_4_2015_2019_gender_melt = melt(stb_4_2015_2019_gender,id=c('month','region','place_of_residence'))
+    ggplot(data = stb_4_2015_2019_gender_melt, aes(x="", y = value, fill = variable, group = variable)) +
+      geom_bar(stat="identity") +
+      coord_polar("y", start=0)
+  })
+  
+  output$arrivalsbyage <- renderPlot({
+    myFilteredDf = filter4()
+    stb_4_2015_2019_age <- subset(myFilteredDf, select = c(month,region,place_of_residence,age_14andbelow,age_15to19,age_20to24,age_25to34,age_35to44,age_45to54,age_55to64,age_65andabove,not_stated_age))
+    stb_4_2015_2019_age_melt = melt(stb_4_2015_2019_age,id=c('month','region','place_of_residence'))
+    ggplot(data = stb_4_2015_2019_age_melt, aes(x="", y=value, fill=variable, group = variable)) +
+      geom_bar(position = 'dodge', stat="identity" )  
+  })
+  
+  output$visitduration <- renderPlot({
+    myFilteredDf = filter4()
+    stb_4_2015_2019_vdur = subset(myFilteredDf, select = -c(male,female, not_stated_gender, average_age, age_14andbelow,age_15to19,age_20to24,age_25to34,age_35to44,age_45to54,age_55to64,age_65andabove,not_stated_age,average_duration,visitor_days))
+    stb_4_2015_2019_vdur_melt = melt(stb_4_2015_2019_vdur,id=c('month','region','place_of_residence'))
+    ggplot(data = stb_4_2015_2019_vdur_melt, aes(x="", y=value, fill=variable, group = variable)) +
+      geom_bar(position = 'dodge',stat="identity")  
   })
 }
 
