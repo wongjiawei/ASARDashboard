@@ -7,6 +7,20 @@ library(dplyr)
 library(forecast)
 library(ggplot2)
 library(maps)
+library(ggiraph)
+library(reshape2)
+library(rvest)
+library(formattable)
+library(magrittr)
+library(cluster)
+library(RColorBrewer)
+library(scales)
+library(tableHTML)
+
+list.of.packages <- c("shiny", "readxl","DT","shinyWidgets","dplyr","forecast","ggplot2",
+                      "maps","ggiraph","reshape2","rvest","formattable","magrittr","RColorBrewer","cluster","scales","tableHTML")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)>0) {install.packages(new.packages)}
 
 source('./mainFunctions.R')
 stb_4 <- read_excel("./ShinyR/data/4.0.xlsx")

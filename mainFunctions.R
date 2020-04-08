@@ -30,6 +30,9 @@ transformData <- function(stb_4,stb_2) {
     stb_4$place_of_residence[stb_4$place_of_residence == old_names[i]] <- new_names[i]
   }
   
+  stb_4 <- subset(stb_4, as.numeric(format(stb_4$month,'%Y'))>=2015 & as.numeric(format(stb_4$month,'%Y'))<=2019)
+  stb_2 <- subset(stb_2, as.numeric(format(stb_2$month,'%Y'))>=2015 & as.numeric(format(stb_2$month,'%Y'))<=2019)
+  
   returnList = list("stb_2" = stb_2, "stb_4" = stb_4)
   return(returnList)
 }
@@ -104,12 +107,10 @@ timeseriesPredict <- function(stb_2) {
   #######Forecast using Auto ARIMA method########
   arima_model_2016_2019 <- auto.arima(dat_ts_2016_2019)
   fore_arima_2016_2019 = forecast::forecast(arima_model_2016_2019, h=12)
-  df_arima_2016_2019 = as.data.frame(fore_arima_2016_2019)
-  df_arima_2016_2019
   return(fore_arima_2016_2019)
 }
 
-worldMaps <- function(stb_4 ) {
+worldMaps <- function(stb_4) {
   url <- "https://www.nationsonline.org/oneworld/country_code_list.htm"
   iso_codes <- url %>%
     read_html() %>%
@@ -125,6 +126,11 @@ worldMaps <- function(stb_4 ) {
   stb_4$Value = as.numeric(stb_4$Value)
   stb_4['ISO3'] <- iso_codes$ISO3[match(stb_4$place_of_residence, iso_codes$Country)]
   world_data["ISO3"] <- iso_codes$ISO3[match(world_data$region, iso_codes$Country)]
+  
+  gendervars = c("place_of_residence","Value",'ISO3')
+  stb_4_gender = stb_4[gendervars]
+  stb_4_melt <- melt(stb_4_gender, id = c("ISO3", "place_of_residence"), 
+                      variable.name = "Indicator", value.name = "Value")
   
   old_names1 <- c("UK", "South Korea", "Taiwan", "USA", "Vietnam")
   new_names1 <- c("United Kingdom", "Korea (South)", "Taiwan, Republic of China","United States of America", "Viet Nam")
@@ -144,21 +150,81 @@ worldMaps <- function(stb_4 ) {
                        panel.border = element_blank(), 
                        strip.background = element_rect(fill = 'white', colour = 'white'))
   }
-  plotdf <- stb_4
-  world_data['Value'] <- plotdf$Value[match(world_data$ISO3, plotdf$ISO3)]
+  world_data['Value'] <- (stb_4_melt$Value[match(world_data$ISO3, stb_4_melt$ISO3)])
   
+  ## Do tooltips
+  cluster1 <- c("Thailand", "Vietnam")
+  cluster2 <- c("Netherlands", "USA", "Germany")
+  cluster3 <- c("Canada", "UK")
+  cluster4 <- c("South Korea", "Taiwan", "China")
+  cluster5 <- c("France", "South Africa")
+  cluster6 <- c("Philippines", "Russian Federation")
+  cluster7 <- c("Australia", "New Zealand")
+  cluster8 <- c("Indonesia", "Malaysia")
+  cluster9 <- c("Hong Kong", "Japan")
+  cluster10 <- c("India", "Others")
+  
+  similarcountries <- list(cluster1, cluster2, cluster3, cluster4, cluster5, cluster6, cluster7, cluster8, cluster9, cluster10)
+  world_data = world_data %>% 
+    mutate(similarcountries = case_when(
+      .$region %in% cluster1 ~ paste( unlist(cluster1), collapse=', '),
+      .$region %in% cluster2 ~ paste( unlist(cluster2), collapse=', '),
+      .$region %in% cluster3 ~ paste( unlist(cluster3), collapse=', '),
+      .$region %in% cluster4 ~ paste( unlist(cluster4), collapse=', '),
+      .$region %in% cluster5 ~ paste( unlist(cluster5), collapse=', '),
+      .$region %in% cluster6 ~ paste( unlist(cluster6), collapse=', '),
+      .$region %in% cluster7 ~ paste( unlist(cluster7), collapse=', '),
+      .$region %in% cluster8 ~ paste( unlist(cluster8), collapse=', '),
+      .$region %in% cluster9 ~ paste( unlist(cluster9), collapse=', '),
+      .$region %in% cluster10 ~ paste( unlist(cluster10), collapse=', '),
+      TRUE ~ "None"
+    ))
   # Specify the plot for the world map
   library(RColorBrewer)
   library(ggiraph)
   g <- ggplot() + 
     geom_polygon_interactive(data = subset(world_data, lat >= -60 & lat <= 90), color = 'grey70', size = 0.1,
                              aes(x = long, y = lat, fill = Value, group = group, 
-                                 tooltip = sprintf("%s<br/>%s", region, Value))) + 
-    scale_fill_gradientn(colours = brewer.pal(5, "RdBu"), na.value = 'white') + 
-    labs(fill = NULL, title = NULL, x = NULL, y = NULL) + 
-    my_theme()
+                                   tooltip = sprintf("%s<br/>%s<br/>Similar Countries: %s", region, Value, similarcountries))) +
+    scale_fill_gradientn(colours = brewer.pal(5, "RdBu"), na.value = 'white', labels = comma) +
+    my_theme() 
+    
   
   return(g)
 }
 
+predictionTable <- function(stb_2) {
+  #To get summary table
+  fore_arima_2016_2019 = timeseriesPredict(stb_2)
+  df_arima_2016_2019 = as.data.frame(fore_arima_2016_2019)
+  stb_2_Overall <- stb_2 %>% group_by(month) %>% summarise(total_arrival = sum(arrivals))
+  dat_ts_2019 <- subset(stb_2_Overall, as.numeric(format(stb_2_Overall$month,'%Y'))==2019)
+  sumtab_Overall <- cbind(df_arima_2016_2019, dat_ts_2019)
+  sumtab_Overall$Y_O_Y <- round(((sumtab_Overall$"Point Forecast" - sumtab_Overall$total_arrival)/sumtab_Overall$total_arrival)*100, digits=2)
+  
+  Jan2020_Nov_2020 <- df_arima_2016_2019 %>% select('Point Forecast') %>% slice(1:11) %>% rename(lag_data = "Point Forecast")
+  Dec2019 <- dat_ts_2019 %>% select(total_arrival) %>% slice(12) %>% rename(lag_data = total_arrival)
+  Dec2019_Nov_2020 <- rbind(Dec2019,Jan2020_Nov_2020) 
+  
+  sumtab_Overall <- cbind(sumtab_Overall,Dec2019_Nov_2020)
+  sumtab_Overall$M_O_M <- round(((sumtab_Overall$"Point Forecast" - sumtab_Overall$lag_data)/sumtab_Overall$lag_data)*100, digits=2)
+  sumtab_Overall$`Point Forecast` <- round(sumtab_Overall$"Point Forecast"*1, digits = 0)
+  sumtab_Overall$`Lo 95` <- round(sumtab_Overall$"Lo 95"*1, digits = 0)
+  sumtab_Overall$`Hi 95` <- round(sumtab_Overall$"Hi 95"*1, digits = 0)
+  
+  sumtab_Overall <- sumtab_Overall %>% rename('Predicted Value'= 'Point Forecast', 'Lower Limit (95% CI)' = 'Lo 95', 'Upper Limit (95% CI)' = 'Hi 95', 'M-O-M (%)' = 'M_O_M', 'Y-O-Y (%)' = 'Y_O_Y') 
+  sumtab_Overall <- sumtab_Overall %>% select('Predicted Value', 'Lower Limit (95% CI)', 'Upper Limit (95% CI)', 'M-O-M (%)', 'Y-O-Y (%)')
+  sumtab_Overall$`Lower Limit (95% CI)` <- format(sumtab_Overall$`Lower Limit (95% CI)`, big.mark = ",")
+  sumtab_Overall$`Upper Limit (95% CI)` <- format(sumtab_Overall$`Upper Limit (95% CI)`, big.mark = ",")
+  
+  sumtab_Overall_total <- sumtab_Overall %>% summarise('Predicted Value' = sum(`Predicted Value`))
+  row.names(sumtab_Overall_total) <- "Total"
+  sumtab_Overall_total$'Lower Limit (95% CI)' <- ''
+  sumtab_Overall_total$'Upper Limit (95% CI)' <- ''
+  sumtab_Overall_total$'M-O-M (%)' <- ''
+  sumtab_Overall_total$'Y-O-Y (%)' <- ''
+  sumtab_Overall <- rbind(sumtab_Overall, sumtab_Overall_total)
+  sumtab_Overall$`Predicted Value` <- format(sumtab_Overall$`Predicted Value`, big.mark = ",")
+  return(sumtab_Overall)
+}
 
