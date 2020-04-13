@@ -22,8 +22,8 @@ library(stlplus)
 
 
 ## Read in datasets
-stb_2 <- read_excel("./ShinyR/data/2.0.xlsx")
-stb_4 <- read_excel("./ShinyR/data/4.0.xlsx")
+stb_2 <- read_excel("2.0.xlsx")
+stb_4 <- read_excel("4.0.xlsx")
 
 ## Rename columns
 stb_2 <- stb_2 %>% rename(
@@ -50,7 +50,6 @@ stb_4$month <- as.Date(paste("01-", stb_4$month, sep = ""), format = "%d-%b-%y")
 stb_2_2015_2019 <- subset(stb_2, as.numeric(format(stb_2$month,'%Y'))>=2015 & as.numeric(format(stb_2$month,'%Y'))<=2019)
 stb_4_2015_2019 <- subset(stb_4, as.numeric(format(stb_4$month,'%Y'))>=2015 & as.numeric(format(stb_4$month,'%Y'))<=2019)
 
-  
 ## Create data subsets
 
 #Overall Arrival
@@ -146,33 +145,19 @@ server <- function(input, output) {
   #creating the valueBoxOutput content
   
   output$arrivalsbygender <- renderPlot(
-    ggplot(data = stb_4_2015_2019_gender_melt, aes(x="", y = value, fill = variable)) +
+    ggplot(data = stb_4_2015_2019_gender_melt, aes(x="", y = value, fill = variable, group = variable)) +
       geom_bar(stat="identity") +
-      coord_polar("y", start=0) +
-      labs(title="Arrivals by Gender", x ='', y = '', fill = 'Gender') +
-      theme_classic() +
-      theme(plot.title = element_text(hjust=0.5),
-            axis.line = element_blank(),
-            axis.text = element_blank(),
-            axis.ticks = element_blank()) +
-      geom_text(aes(label = sum(value)),
-                position = position_stack(vjust = 0.5))
+      coord_polar("y", start=0)
   )
   
   output$arrivalsbyage <- renderPlot(
-    ggplot(data = stb_4_2015_2019_age_melt, aes(x=variable, xlabel=TRUE, y=value, fill=variable)) +
-      geom_bar(position = 'dodge', stat="identity" ) + 
-      theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      labs(title="Arrivals by Age Groups",x ="Age Groups", y = "Number of Arrivals") +
-      theme(legend.position = "none")
+    ggplot(data = stb_4_2015_2019_age_melt, aes(x="", y=value, fill=variable, group = variable)) +
+      geom_bar(position = 'dodge', stat="identity" )  
   )
   
   output$visitduration <- renderPlot(
-    ggplot(data = stb_4_2015_2019_vdur_melt, aes(x=variable, xlabel=TRUE, y=value, fill=variable)) +
-      geom_bar(position = 'dodge',stat="identity") + 
-      theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      labs(title="Visit Duration",x ="Duration", y = "Frequency of Occurrence")+
-      theme(legend.position = "none")
+    ggplot(data = stb_4_2015_2019_vdur_melt, aes(x="", y=value, fill=variable, group = variable)) +
+      geom_bar(position = 'dodge',stat="identity")  
   )
 }
 

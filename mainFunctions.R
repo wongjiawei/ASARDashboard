@@ -8,12 +8,14 @@ transformData <- function(stb_4,stb_2) {
     # gender
     male = "Male", female = "Female", not_stated_gender = "Not Stated...6", 
     # age
-    age_14andbelow = "14 & Below", age_15to19 = "15 - 19",  age_20to24 = "20 - 24", age_25to34 = "25 - 34", age_35to44 = "35 - 44", 
-    age_45to54 = "45 - 54", age_55to64 = "55 - 64", age_65andabove = "65 & Above", not_stated_age = "Not Stated...15", average_age = "Average Age", 
+    # age_14andbelow = "14 & Below", age_15to19 = "15 - 19",  age_20to24 = "20 - 24", age_25to34 = "25 - 34", age_35to44 = "35 - 44", 
+    # age_45to54 = "45 - 54", age_55to64 = "55 - 64", age_65andabove = "65 & Above", 
+    average_age = "Average Age", `Age not stated` = "Not Stated...15", 
     # length of stay
-    dur_under1day = "Under 1 Day", dur_1day = "1 Day", dur_2days = "2 Days", dur_3days = "3 Days", dur_4days = "4 Days", dur_5days = "5 Days", 
-    dur_6days = "6 Days", dur_7days = "7 Days", dur_8to10days = "8 - 10 Days", dur_11to14days = "11 - 14 Days", dur_15to29days = "15 - 29 Days", 
-    dur_30to59days = "30 - 59 Days", dur_60daysandover = "60 Days & Over", average_duration = "Average Length of Stay (Days)", visitor_days = "Visitor Days"
+    # dur_under1day = "Under 1 Day", dur_1day = "1 Day", dur_2days = "2 Days", dur_3days = "3 Days", dur_4days = "4 Days", dur_5days = "5 Days", 
+    # dur_6days = "6 Days", dur_7days = "7 Days", dur_8to10days = "8 - 10 Days", dur_11to14days = "11 - 14 Days", dur_15to29days = "15 - 29 Days", 
+    # dur_30to59days = "30 - 59 Days", dur_60daysandover = "60 Days & Over",
+    average_duration = "Average Length of Stay (Days)", visitor_days = "Visitor Days"
   )
   
   ## Convert "month" column to date format
@@ -24,11 +26,6 @@ transformData <- function(stb_4,stb_2) {
   
   ## Calculate Total
   stb_4$Value = stb_4$female + stb_4$male
-  old_names <- c("USA", "Vietnam", "Hong Kong SAR", "Taiwan","South Korea", "UK","South Africa (Rep of)")
-  new_names <- c("United States of America", "Viet Nam", "Hong Kong, SAR China", "Taiwan, Republic of China", "Korea (South)", "	United Kingdom", "South Africa")
-  for (i in 1:length(old_names)){
-    stb_4$place_of_residence[stb_4$place_of_residence == old_names[i]] <- new_names[i]
-  }
   
   stb_4 <- subset(stb_4, as.numeric(format(stb_4$month,'%Y'))>=2015 & as.numeric(format(stb_4$month,'%Y'))<=2019)
   stb_2 <- subset(stb_2, as.numeric(format(stb_2$month,'%Y'))>=2015 & as.numeric(format(stb_2$month,'%Y'))<=2019)
@@ -111,32 +108,42 @@ timeseriesPredict <- function(stb_2) {
 }
 
 worldMaps <- function(stb_4) {
-  url <- "https://www.nationsonline.org/oneworld/country_code_list.htm"
-  iso_codes <- url %>%
-    read_html() %>%
-    html_nodes(xpath = '//*[@id="CountryCode"]') %>%
-    html_table()
-  iso_codes <- iso_codes[[1]][, -1]
-  iso_codes <- iso_codes[!apply(iso_codes, 1, function(x){all(x == x[1])}), ]
-  names(iso_codes) <- c("Country", "ISO2", "ISO3", "UN")
+  # url <- "https://www.nationsonline.org/oneworld/country_code_list.htm"
+  # iso_codes <- url %>%
+  #   read_html() %>%
+  #   html_nodes(xpath = '//*[@id="CountryCode"]') %>%
+  #   html_table()
+  # iso_codes <- iso_codes[[1]][, -1]
+  # iso_codes <- iso_codes[!apply(iso_codes, 1, function(x){all(x == x[1])}), ]
+  # names(iso_codes) <- c("Country", "ISO2", "ISO3", "UN")
   
+  load('../iso_codes.RData')
   world_data <- ggplot2::map_data('world')
   world_data <- fortify(world_data)
+  
+  old_names1 <- c("UK", "South Korea", "Taiwan", "USA", "Vietnam", "Russia")
+  new_names1 <- c("United Kingdom", "Korea (South)", "Taiwan, Republic of China","United States of America", "Viet Nam", "Russian Federation")
+  for (i in 1:length(old_names1)){
+    world_data$region[world_data$region == old_names1[i]] <- new_names1[i]
+  }
+  
+  old_names <- c("USA", "Vietnam", "Hong Kong SAR", "Taiwan","South Korea", "UK","South Africa (Rep of)","\tUnited Kingdom")
+  new_names <- c("United States of America", "Viet Nam", "China", "Taiwan, Republic of China", "Korea (South)", "United Kingdom", "South Africa", "United Kingdom")
+  
+  for (i in 1:length(old_names)){
+    stb_4$place_of_residence[stb_4$place_of_residence == old_names[i]] <- new_names[i]
+  }
   
   stb_4$Value = as.numeric(stb_4$Value)
   stb_4['ISO3'] <- iso_codes$ISO3[match(stb_4$place_of_residence, iso_codes$Country)]
   world_data["ISO3"] <- iso_codes$ISO3[match(world_data$region, iso_codes$Country)]
   
-  gendervars = c("place_of_residence","Value",'ISO3')
+  gendervars = c('month',"place_of_residence","Value",'ISO3')
   stb_4_gender = stb_4[gendervars]
-  stb_4_melt <- melt(stb_4_gender, id = c("ISO3", "place_of_residence"), 
-                      variable.name = "Indicator", value.name = "Value")
-  
-  old_names1 <- c("UK", "South Korea", "Taiwan", "USA", "Vietnam")
-  new_names1 <- c("United Kingdom", "Korea (South)", "Taiwan, Republic of China","United States of America", "Viet Nam")
-  for (i in 1:length(old_names1)){
-    world_data$region[world_data$region == old_names1[i]] <- new_names1[i]
-  }
+  stb_4_melt <- aggregate(stb_4_gender$Value, by=list(ISO3=stb_4_gender$ISO3, place_of_residence=stb_4_gender$place_of_residence), FUN=sum)
+  stb_4_melt <- stb_4_melt %>% rename(
+    Value = "x"
+  )
   
   ##it's time to define the function that we'll use for building our world maps.
   my_theme <- function () { 
@@ -150,6 +157,7 @@ worldMaps <- function(stb_4) {
                        panel.border = element_blank(), 
                        strip.background = element_rect(fill = 'white', colour = 'white'))
   }
+  stb_4_melt <- stb_4_melt[!is.na(stb_4_melt$ISO3), ]
   world_data['Value'] <- (stb_4_melt$Value[match(world_data$ISO3, stb_4_melt$ISO3)])
   
   ## Do tooltips
@@ -164,19 +172,53 @@ worldMaps <- function(stb_4) {
   cluster9 <- c("Hong Kong", "Japan")
   cluster10 <- c("India", "Others")
   
-  similarcountries <- list(cluster1, cluster2, cluster3, cluster4, cluster5, cluster6, cluster7, cluster8, cluster9, cluster10)
+  similarcountries <- list(
+    "Thailand" = c("Vietnam"), 
+    "Vietnam" = c("Thailand"), 
+    "Netherlands" = c("United States of America", "Germany"), 
+    "United States of America" = c("Netherlands", "Germany"), 
+    "Germany" = c("Netherlands", "United States of America"), 
+    "Canada" = c("United Kingdom"), 
+    "United Kingdom" = c("Canada"), 
+    "South Korea" = c("Taiwan", "China"), 
+    "Taiwan" = c("South Korea", "China"), 
+    "China" = c("South Korea", "Taiwan"), 
+    "France" = c("South Africa"), 
+    "South Africa" = c("France"), 
+    "Philippines" = c("Russian Federation"), 
+    "Russian Federation" = c("Philippines"), 
+    "Australia" = c("New Zealand"), 
+    "New Zealand" = c("Australia"), 
+    "Indonesia" = c("Malaysia"), 
+    "Malaysia" = c("Indonesia"), 
+    "Hong Kong" = c("Japan"), 
+    "Japan" = c("Hong Kong"), 
+    "India" = c("Others")
+  )
   world_data = world_data %>% 
     mutate(similarcountries = case_when(
-      .$region %in% cluster1 ~ paste( unlist(cluster1), collapse=', '),
-      .$region %in% cluster2 ~ paste( unlist(cluster2), collapse=', '),
-      .$region %in% cluster3 ~ paste( unlist(cluster3), collapse=', '),
-      .$region %in% cluster4 ~ paste( unlist(cluster4), collapse=', '),
-      .$region %in% cluster5 ~ paste( unlist(cluster5), collapse=', '),
-      .$region %in% cluster6 ~ paste( unlist(cluster6), collapse=', '),
-      .$region %in% cluster7 ~ paste( unlist(cluster7), collapse=', '),
-      .$region %in% cluster8 ~ paste( unlist(cluster8), collapse=', '),
-      .$region %in% cluster9 ~ paste( unlist(cluster9), collapse=', '),
-      .$region %in% cluster10 ~ paste( unlist(cluster10), collapse=', '),
+      .$region == "Thailand" ~ "Vietnam",
+      .$region == "Vietnam" ~ "Thailand",
+      .$region == "Netherlands" ~ paste( unlist(c("United States of America", "Germany")), collapse=', '),
+      .$region == "Germany" ~ paste( unlist(c("Netherlands", "United States of America")), collapse=', '),
+      .$region == "United States of America" ~ paste( unlist(c("Netherlands", "Germany")), collapse=', '),
+      .$region == "Canada" ~ "United Kingdom",
+      .$region == "United Kingdom" ~ "Canada",
+      .$region == "Korea (South)" ~ paste( unlist(c("Taiwan", "China")), collapse=', '),
+      .$region == 'Taiwan, Republic of China' ~ paste( unlist(c("Korea (South)", "China")), collapse=', '),
+      .$region == 'China' ~ paste( unlist(c("Korea (South)", "Taiwan")), collapse=', '),
+      .$region == 'France' ~ "South Africa",
+      .$region == 'South Africa' ~ "France",
+      .$region == 'Philippines' ~ 'Russian Federation',
+      .$region == 'Russian Federation' ~ 'Philippines',
+      .$region == 'New Zealand' ~ 'Australia',
+      .$region == 'Australia' ~ 'New Zealand',
+      .$region == 'Indonesia' ~ 'Malaysia',
+      .$region == 'Malaysia' ~ 'Indonesia',
+      .$region == 'Hong Kong' ~ 'Japan',
+      .$region == 'Japan' ~ 'Hong Kong',
+      .$region == 'Indonesia' ~ 'Malaysia',
+      .$region == 'India' ~ 'Others',
       TRUE ~ "None"
     ))
   # Specify the plot for the world map

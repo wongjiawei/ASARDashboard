@@ -16,8 +16,10 @@ library(cluster)
 library(RColorBrewer)
 library(scales)
 library(tableHTML)
+library(shinydashboard)
+library(formattable)
 
-list.of.packages <- c("shiny", "readxl","DT","shinyWidgets","dplyr","forecast","ggplot2",
+list.of.packages <- c("shiny", "readxl","DT","shinyWidgets","dplyr","forecast","ggplot2","shinydashboard","formattable",
                       "maps","ggiraph","reshape2","rvest","formattable","magrittr","RColorBrewer","cluster","scales","tableHTML")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)>0) {install.packages(new.packages)}
@@ -28,6 +30,5 @@ stb_2 <- read_excel("./ShinyR/data/2.0.xlsx")
 transformList = transformData(stb_4, stb_2)
 stb_4 = transformList$stb_4
 stb_2 = transformList$stb_2
-
 
 shiny::runApp("ShinyR")

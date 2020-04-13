@@ -12,10 +12,16 @@ function(input, output, session) {
                                           DT::datatable(myFilteredDf)
                                         }, options = list(autoWidth = TRUE, scrollX = TRUE))
   
-  output$predictionTable <- DT::renderDataTable({
+  output$predictionTable <- renderFormattable({
     myFilteredDf <- filter2()
     filteredTable <- predictionTable(myFilteredDf)
-    DT::datatable(filteredTable)
+    
+    customGreen = "#71CA97"
+    customGreen0 = "#DeF7E9"
+    customRed = "#ff7f7f"
+    improvement_formatter <- formatter("span", style = x ~ style(font.weight = "bold", color = ifelse(x > 0 , customGreen, ifelse(x < 0 & x!='' , customRed, "white"))), x ~ icontext(ifelse(x>0 , "arrow-up", "arrow-down"), x))
+    
+    formattable(filteredTable, align =c("c","c","c","c","c"), list('M-O-M (%)'= improvement_formatter, 'Y-O-Y (%)'= improvement_formatter ))
   })
   
   filter1 <-  reactive({
@@ -24,9 +30,11 @@ function(input, output, session) {
   })
   
   observe({
-    dt <- unique(stb_2$place_of_residence[stb_2$region %in% input$RegionInput])
+    dt <- unique(sort(stb_2$place_of_residence[stb_2$region %in% input$RegionInput]))
     updatePickerInput(session, "CountryInput", choices = dt,selected = dt)
   })
+  
+
   
   # output$cluster_avg = renderPlot({
   #   myFilteredDf <- filter1()
@@ -50,9 +58,7 @@ function(input, output, session) {
   })
   
   filter4 <-  reactive({
-    stb_4 %>% filter(region %in% input$RegionInput) %>%
-      filter(place_of_residence %in% input$CountryInput) %>% 
-      filter(yearmonth %in% input$YearMonthInput)
+    stb_4 %>% filter(region %in% input$RegionInput & place_of_residence %in% input$CountryInput & yearmonth %in% input$YearMonthInput)
   })
   
   output$prediction_graph = renderPlot({
@@ -68,38 +74,50 @@ function(input, output, session) {
   
   output$arrivalsbygender <- renderPlot({
     myFilteredDf = filter4()
-    stb_4_2015_2019 <- subset(myFilteredDf, as.numeric(format(stb_4$month,'%Y'))>=2015 & as.numeric(format(stb_4$month,'%Y'))<=2019)
-    stb_4_2015_2019_gender = stb_4_2015_2019[,1:5]
+    stb_4_2015_2019_gender = myFilteredDf[,1:5]
     stb_4_2015_2019_gender_melt = melt(stb_4_2015_2019_gender,id=c('month','region','place_of_residence'))
+    stb_4_2015_2019_gender_melt <- aggregate(stb_4_2015_2019_gender_melt$value, by=list(variable=stb_4_2015_2019_gender_melt$variable), FUN=sum)
+    stb_4_2015_2019_gender_melt <- stb_4_2015_2019_gender_melt %>% rename(
+      value = "x"
+    )
     ggplot(data = stb_4_2015_2019_gender_melt, aes(x=variable, x.label=TRUE, y = value, fill = variable)) +
       geom_bar(position = 'dodge',stat="identity") +
-      labs(title="Arrivals by Gender", x ='Gender', y = '', fill = 'Gender') +
-      theme_classic()
+      labs(x ='Gender', y = '', fill = 'Gender') +
+      theme_classic() + scale_y_continuous(labels = comma) + geom_text(aes(label=scales::comma(value)), position=position_dodge(width=0.9), vjust=-0.25)
   })
   
   output$arrivalsbyage <- renderPlot({
     myFilteredDf = filter4()
     stb_4_2015_2019 <- subset(myFilteredDf, as.numeric(format(myFilteredDf$month,'%Y'))>=2015 & as.numeric(format(myFilteredDf$month,'%Y'))<=2019)
-    stb_4_2015_2019_age <- subset(stb_4_2015_2019, select = c(month,region,place_of_residence,age_14andbelow,age_15to19,age_20to24,age_25to34,age_35to44,age_45to54,age_55to64,age_65andabove,not_stated_age))
+    stb_4_2015_2019_age <- subset(stb_4_2015_2019, select = c(month,region,place_of_residence,`14 & Below`,`15 - 19`,`20 - 24`,`25 - 34`,`35 - 44`,`45 - 54`,`55 - 64`,`65 & Above`,`Age not stated`))
     stb_4_2015_2019_age_melt = melt(stb_4_2015_2019_age,id=c('month','region','place_of_residence'))
+    stb_4_2015_2019_age_melt <- aggregate(stb_4_2015_2019_age_melt$value, by=list(variable=stb_4_2015_2019_age_melt$variable), FUN=sum)
+    stb_4_2015_2019_age_melt <- stb_4_2015_2019_age_melt %>% rename(
+      value = "x"
+    )
     ggplot(data = stb_4_2015_2019_age_melt, aes(x=variable, xlabel=TRUE, y=value, fill=variable)) +
       geom_bar(position = 'dodge', stat="identity" ) + 
       theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
       labs(x ="Age Groups", y = "Number of Arrivals") +
-      theme(legend.position = "none")
+      theme(legend.position = "none") + 
+      scale_y_continuous(labels = comma) + geom_text(aes(label=scales::comma(value)), position=position_dodge(width=0.9), vjust=-0.25)
   })
   
   output$visitduration <- renderPlot({
     myFilteredDf = filter4()
     stb_4_2015_2019 <- subset(myFilteredDf, as.numeric(format(myFilteredDf$month,'%Y'))>=2015 & as.numeric(format(myFilteredDf$month,'%Y'))<=2019)
-    stb_4_2015_2019_vdur = subset(stb_4_2015_2019, select = -c(male,female, not_stated_gender, average_age, age_14andbelow,age_15to19,age_20to24,age_25to34,age_35to44,age_45to54,age_55to64,age_65andabove,not_stated_age,average_duration,visitor_days))
+    stb_4_2015_2019_vdur = subset(stb_4_2015_2019, select = -c(male,female, not_stated_gender, average_age, `14 & Below`,`15 - 19`,`20 - 24`,`25 - 34`,`35 - 44`,`45 - 54`,`55 - 64`,`65 & Above`,`Age not stated`,average_duration,visitor_days))
     stb_4_2015_2019_vdur = stb_4_2015_2019_vdur[, !colnames(stb_4_2015_2019_vdur) %in% c('yearmonth','Value')]
     stb_4_2015_2019_vdur_melt = melt(stb_4_2015_2019_vdur,id=c('month','region','place_of_residence'))
+    stb_4_2015_2019_vdur_melt <- aggregate(stb_4_2015_2019_vdur_melt$value, by=list(variable=stb_4_2015_2019_vdur_melt$variable), FUN=sum)
+    stb_4_2015_2019_vdur_melt <- stb_4_2015_2019_vdur_melt %>% rename(
+      value = "x"
+    )
     ggplot(data = stb_4_2015_2019_vdur_melt, aes(x=variable, xlabel=TRUE, y=value, fill=variable)) +
       geom_bar(position = 'dodge',stat="identity") + 
       theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      labs(title="Visit Duration",x ="Duration", y = "Frequency of Occurrence")+
-      theme(legend.position = "none")
+      labs(x ="Duration", y = "Frequency of Occurrence")+
+      theme(legend.position = "none") + scale_y_continuous(labels = comma) + geom_text(aes(label=scales::comma(value)), position=position_dodge(width=0.9), vjust=-0.25)
   })
   
   
